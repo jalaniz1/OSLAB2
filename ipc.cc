@@ -92,6 +92,7 @@ int main(int argc, char **argv){
 	char    parentmsg[] = "2";
 	char    quitmsg[] = "q";
 	char readbuffer [2]; // Bytesized buffer with null terminator
+	char buffer2 [1025]; // Bytesized buffer with null terminator
 	int nbytes = 0;
 	struct sigaction mySigActions;
 	//sigset_t block_set;
@@ -226,6 +227,28 @@ int main(int argc, char **argv){
    				/* Waits for parent to communicate first. Then follow this same order
    				on every subsequent iteration*/
    			}
+   			if ((nbytes=read(fd2[0], readbuffer, sizeof(readbuffer)))) // Input from Parent
+   				{
+   					if (readbuffer[0] == 'q') // Quit message received
+   					{
+   					
+   					gettimeofday(&t2, NULL); // Elapsed timer stop
+   					double eTime = (t2.tv_sec - t1.tv_sec) * 1000.0;
+   					eTime += (t2.tv_usec - t1.tv_usec) / 1000.0;   // us to ms 
+   					int j = snprintf(buffer2, 1024,"Process ID is %d, Group ID is %d\n",(int)getpid(),
+   					 (int)getpgid(getpid()));
+   					j+= snprintf(buffer2+j, 1024, "Average %.6f\n",average/MAX_TESTS);
+   					j+=snprintf(buffer2+j,1024, "Maximum %.6f\n", max);
+   					j+=snprintf(buffer2+j,1024, "Minimum %.6f\n", min);
+   					j+=snprintf(buffer2+j,1024, "Elapsed Time %f\n", eTime);
+   					close(fd1[0]); // Close read for parent
+   					close(fd2[1]); // Close write from parent
+   					//printf("C Received char %s\n", readbuffer);
+
+   					write(fd1[1],buffer2, (strlen(buffer2)+1));
+   					}
+   				}
+   				exit(0); // Close this puppy up
    		}
    		else // Parent
    		{
@@ -259,10 +282,15 @@ int main(int argc, char **argv){
    		
 
    			}
+   			write(fd2[1], quitmsg,(strlen(parentmsg)+1)); // Quit message, waiting for results
+   			if((nbytes = read(fd1[0], buffer2, sizeof(buffer2)))) //Input from Child
+   				{   					
+   					close(fd1[1]); // Close write from child
+   					close(fd2[0]); // Close read for child
+   				}
 
-   			
    			wait(0); // Waits for child to queue/print it's message and exit it's process
-   			// Before continuing.  Which takes alot of time in miliseconds... Interesting.
+   			// Before continuing.
    		}
 
    		
@@ -270,14 +298,8 @@ int main(int argc, char **argv){
 
 		// stop timer
    		gettimeofday(&t2, NULL); // Elapsed timer 2
-
-   		if (childpid == 0) // Child
-   		{
-   			printf("Child's Results for Pipe IPC mechanisms\n");
-
-   		}
-   		else // Parent
-   			printf("Parent's Results for Pipe IPC mechanisms\n");	
+   		printf("Child's Results for Pipe IPC mechanisms\n%s", buffer2);
+   		printf("Parent's Results for Pipe IPC mechanisms\n");	
 		printf("Process ID is %d, Group ID is %d\n",(int)getpid(), (int)getpgid(getpid()));
 
 		// compute and print the elapsed time in millisec
