@@ -96,7 +96,7 @@ double max_Num (double a, double b)
 
 double min_Num (double a, double b)
 {
-	double r = a;
+	double r = b;
 	(r > b) && (r = b);
 	return r;
 }
@@ -134,52 +134,6 @@ int main(int argc, char **argv){
     Signal(SIGUSR1,  sigusr1_handler); //User Defined Signal 1
     Signal(SIGUSR2,  sigusr2_handler); //User Defined Signal 2
     Signal(SIGINT, sigint_handler); // For signal benchmarking
-
-    //sigfillset(&block_set);
-    //sigdelset(&block_set, SIGUSR1);
-    //sigdelset(&block_set, SIGUSR2);
-    //sigdelset(&block_set, SIGINT);
-  /*   mySigActions.sa_handler = sigint_handler;
-  	sigemptyset(&mySigActions.sa_mask);
-  	mySigActions.sa_flags = 0;
-  if (sigaction(SIGHUP, &mySigActions, NULL) < 0) {
-    perror("Sigaction failed for SIGHUP");
-    exit(1);
-  }
-
-  
-    mySigActions.sa_handler = sigint_handler;
-    sigemptyset(&mySigActions.sa_mask);
-    mySigActions.sa_flags = 0;
-    if (sigaction(SIGINT, &mySigActions, NULL) < 0)
-    {
-    	perror("Sigaction failed for SIGINT");
-    	exit(1);
-    }*/
-
-    mySigActions.sa_handler = sigusr1_handler;
-    sigemptyset(&mySigActions.sa_mask);
-    mySigActions.sa_flags = 0;
-    if(sigaction(SIGUSR1, &mySigActions, NULL) < 0)
-    {
-    		perror("Sigaction failed for SIGUSR1");
-    		exit(1);
-    }
-    mySigActions.sa_handler = sigusr2_handler;
-    sigemptyset(&mySigActions.sa_mask);
-    mySigActions.sa_flags = 0; // No flags
-    if(sigaction(SIGUSR2, &mySigActions, NULL) < 0)
-    {
-    		perror("Sigaction failed for SIGUSR2");
-    		exit(1);
-    }
-
-    //sigemptyset(&mySigActions.sa_mask);
-	//sigaddset(&mySigActions.sa_mask, SIGUSR1);
-	//sigprocmask(SIG_BLOCK, &mySigActions.sa_mask, NULL);
-
-
-
 
     
     //Default Value of Num Tests
@@ -245,9 +199,10 @@ int main(int argc, char **argv){
    					//printf ("C Time %f\n", eTime);
    					
 				
-					min = min_Num(eTime,max);
+				min = min_Num(min,eTime);
 					
-   					max = max_Num(eTime,max);
+   				max = max_Num(eTime,max);
+
    				}
    				/* Waits for parent to communicate first. Then follow this same order
    				on every subsequent iteration*/
@@ -300,10 +255,10 @@ int main(int argc, char **argv){
    					average+=eTime; // Average
    					//printf ("C Time %f\n", eTime);
    					
-				
-					min = min_Num(eTime,max);
+				min = min_Num(min,eTime);
 					
-   					max = max_Num(eTime,max);
+   				max = max_Num(eTime,max);
+
    		
 
    			}
@@ -364,9 +319,10 @@ int main(int argc, char **argv){
    					//printf ("C Time %f\n", eTime);
    					
 			
-				min = min_Num(eTime,max);
+				min = min_Num(min,eTime);
 					
    				max = max_Num(eTime,max);
+
    				
    				/* Waits for parent to communicate first. Then follow this same order
    				on every subsequent iteration*/
@@ -420,7 +376,7 @@ int main(int argc, char **argv){
    					//printf ("C Time %f\n", eTime);
    					
 				
-					min = min_Num(eTime,max);
+				min = min_Num(min,eTime);
 					
    				max = max_Num(eTime,max);
 
